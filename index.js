@@ -240,7 +240,7 @@ function generateSchemeFromRestriction(templateScheme) {
 `# ${templateScheme.title}
 ${templateScheme.description}
 
-This page contains a human readable form of the restricted scheme which can be accessed and should be referenced via the URL [\`${templateScheme.id}\`](${templateScheme.id}).
+This page contains a human readable form of the restricted [OpenActive](https://www.openactive.io) activity list scheme which can be accessed and should be referenced via the URL [\`${templateScheme.id}\`](${templateScheme.id}).
 
 ## ConceptSchemeRestriction
 ${generatedMarkdownConfig}
