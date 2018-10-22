@@ -1,0 +1,25 @@
+{
+  "name": "concept-scheme-restriction-generator",
+  "version": "1.0.0",
+  "description": "Generator to render complete ConceptSchemes from ConceptSchemeRestriction",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openactive/concept-scheme-restriction-generator.git"
+  },
+  "keywords": [
+    "OpenActive"
+  ],
+  "author": "Nick Evans",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/openactive/concept-scheme-restriction-generator/issues"
+  },
+  "homepage": "https://github.com/openactive/concept-scheme-restriction-generator#readme",
+  "dependencies": {
+    "sync-request": "^6.0.0"
+  }
+}
