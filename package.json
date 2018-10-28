@@ -4,6 +4,8 @@
   "description": "Generator to render complete ConceptSchemes from ConceptSchemeRestriction",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "debug": "node --inspect-brk -i index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +22,7 @@
   },
   "homepage": "https://github.com/openactive/concept-scheme-restriction-generator#readme",
   "dependencies": {
+    "@openactive/skos": "^1.0.17",
     "sync-request": "^6.0.0"
   }
 }

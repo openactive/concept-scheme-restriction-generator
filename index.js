@@ -1,5 +1,6 @@
 
 var request = require('sync-request');
+var skos = require('@openactive/skos');
 var fs = require('fs');
 
 var testRestrictionMLP = {
@@ -29,7 +30,7 @@ var testRestrictionMLP = {
 var testRestrictionEMD = {
   "context": "https://openactive.io/",
   "type": "ConceptScheme",
-  "id": "http://data.emduk.org/activity-list/activity-list.jsonld",
+  "id": "https://data.emduk.org/activity-list/activity-list.jsonld",
   "title": "EMD UK Restricted Activity List",
   "description": "List of activities within scope of EMD UK",
   "beta:conceptRestriction": {
@@ -63,9 +64,8 @@ var testRestriction = {
 
 
 var generatedScheme = generateSchemeFromRestriction(testRestrictionEMD);
-var generatedSchemeString = JSON.stringify(generatedScheme.scheme, null, 2);
 
-writeFile("output/activity-list.jsonld", generatedSchemeString);
+writeFile("output/activity-list.jsonld", JSON.stringify(generatedScheme.scheme, null, 2));
 writeFile("output/index.md", generatedScheme.markdown);
 
 
@@ -109,12 +109,11 @@ function updateNarrowerTransitive(conceptList, conceptIndex) {
   });
 }
 
-function markNarrower(concept, conceptIndex, tabWidth, generatedMarkdownLines) {
+function markNarrower(concept, conceptIndex) {
   concept.isIncluded = true;
-  generatedMarkdownLines.push(' '.repeat(tabWidth) + '- ' + concept.prefLabel + (concept.hidden ? ' (hidden)' : ''));
   concept.narrowerTransitive.forEach(function(narrowerConceptId) { 
     var narrowerConcept = conceptIndex[narrowerConceptId];
-    markNarrower(narrowerConcept, conceptIndex, tabWidth + 2, generatedMarkdownLines);
+    markNarrower(narrowerConcept, conceptIndex);
   });
 }
 
@@ -218,24 +217,51 @@ function generateSchemeFromRestriction(templateScheme) {
   // Update narrowerTransitive based on broaderTransitive
   updateNarrowerTransitive(scheme.concept, conceptIndex);
 
-  // 5) Mark nodes that are still required in the tree, while outputting array, then cleanup concepts
-  var generatedMarkdownLines = [];
+  // 5) Mark nodes that are still required in the tree as .isIncluded
   scheme.concept.filter(concept => concept.topConceptOf == generatedSchemeId).forEach(function(rootConcept) {
-    markNarrower(rootConcept, conceptIndex, 0, generatedMarkdownLines);
+    markNarrower(rootConcept, conceptIndex, 0);
   });
-  var generatedConcepts = scheme.concept.filter(concept => concept.isIncluded);
-  var generatedMarkdownConcepts = generatedMarkdownLines.join("\n");
+  
+  // 6) Create an index and array of all concepts marked as .isIncluded
+  var includedConceptArray = scheme.concept.filter(concept => concept.isIncluded);
+  var includedConceptIndex = includedConceptArray.reduce(function(map, obj) {
+      map[obj.id] = true;
+      return map;
+  }, {});
 
-  // 6) Cleanup concepts
-  generatedConcepts.forEach(function(concept) {
+  var prunedBroader = [];
+  var prunedRelated = [];
+
+  function pruneAndDelete(concept, property) {
+    var prunedConceptList = []
+    if (concept[property]) prunedConceptList = concept[property].filter(id => includedConceptIndex[id] !== true).map(id => '- ' + concept.prefLabel + " -> [" + conceptIndex[id].prefLabel + "]");
+    if (concept[property]) concept[property] = concept[property].filter(id => includedConceptIndex[id] === true);
+    if (concept[property] && concept[property].length == 0) delete concept[property];
+    return prunedConceptList;
+  }
+
+  // 7) Cleanup concepts, removing all references to any that are not .isIncluded
+  includedConceptArray.forEach(function(concept) {
+    // Filter out any referenced Concepts that haven't made the cut
+    prunedBroader = prunedBroader.concat(pruneAndDelete(concept, 'broaderTransitive'));
+    prunedRelated = prunedRelated.concat(pruneAndDelete(concept, 'related'));
+    // Clean up temporary structures
     delete concept.broader;
     delete concept.narrowerTransitive;
     delete concept.isIncluded;
   });
 
-  templateScheme.concept = generatedConcepts;
+  // Log pruning as an FYI
+  console.log("Broader Concepts pruned:\n" + prunedBroader.join('\n') + '\n')
+  console.log("Related Concepts pruned:\n" + prunedRelated.join('\n') + '\n')
 
+  // 8) Validate output
+  templateScheme.concept = includedConceptArray;
+  var validatedScheme = new skos.ConceptScheme(templateScheme);
+
+  // 9) Generate markdown
   var generatedMarkdownConfig = configToMarkdown(["beta:rootConcept", "beta:flattenConcept", "beta:excludeConcept", "beta:hideConcept"], restriction, conceptIndex);
+  var generatedMarkdownConcepts = validatedScheme.toString();
   var generatedMarkdown = 
 `# ${templateScheme.title}
 ${templateScheme.description}
@@ -255,7 +281,6 @@ ${generatedMarkdownConcepts}
   };
 }
 
-
 function getScheme(schemeUrl) {
   console.log("Downloading: " + schemeUrl);
   var response = request('GET', schemeUrl, { headers: { accept: 'application/ld+json' } });
@@ -267,3 +292,6 @@ function getScheme(schemeUrl) {
   }
 }
 
+module.exports = {
+  generateSchemeFromRestriction
+}
