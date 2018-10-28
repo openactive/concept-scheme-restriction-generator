@@ -4,7 +4,7 @@ var skos = require('@openactive/skos');
 var fs = require('fs');
 
 var testRestrictionMLP = {
-  "@context": "https://openactive.io/",
+  "@context":  [ "https://openactive.io/", "https://openactive.io/ns-beta" ],
   "type": "ConceptScheme",
   "id": "http://data.mylocalpitch.com/activity-list/activity-list.jsonld",
   "title": "My Local Pitch Restricted Activity List",
@@ -28,7 +28,7 @@ var testRestrictionMLP = {
 };
 
 var testRestrictionEMD = {
-  "@context": "https://openactive.io/",
+  "@context": [ "https://openactive.io/", "https://openactive.io/ns-beta" ],
   "type": "ConceptScheme",
   "id": "https://data.emduk.org/activity-list/activity-list.jsonld",
   "title": "EMD UK Restricted Activity List",
