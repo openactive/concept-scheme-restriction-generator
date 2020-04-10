@@ -47,11 +47,40 @@ var testRestrictionEMD = {
       "https://openactive.io/activity-list#c72e1713-25c1-4886-926a-4cd549bb4916"
     ],
     "beta:flattenConcept": [
-      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c",
-      "https://openactive.io/activity-list#6ca15167-51da-4d91-a1ae-8a45dc47b0ea"
+      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c"
     ]
   }
 };
+
+var testRestrictionTGC = {
+  "@context": [ "https://openactive.io/", "https://openactive.io/ns-beta" ],
+  "type": "ConceptScheme",
+  "id": "https://opendata.thisgirlcan.co.uk/activity-list/activity-list.jsonld",
+  "title": "This Girl Can Restricted Activity List",
+  "description": "List of activities within scope of This Girl Can",
+  "beta:conceptRestriction": {
+    "type": "beta:ConceptSchemeRestriction",
+    "beta:parentScheme": "https://openactive.io/activity-list",
+    "beta:rootConcept": [
+      "https://openactive.io/activity-list#4a19873e-118e-43f4-b86e-05acba8fb1de",
+      "https://openactive.io/activity-list#6ca15167-51da-4d91-a1ae-8a45dc47b0ea",
+      "https://openactive.io/activity-list#de71c5ea-e93e-49aa-808a-f4a2e68cdddd",
+      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c",
+      "https://openactive.io/activity-list#d101b63b-572f-49d2-a027-d3a5748e6315",
+      "https://openactive.io/activity-list#72ddb2dc-7d75-424e-880a-d90eabe91381",
+      "https://openactive.io/activity-list#2750229d-b725-4171-9276-376be913957c",
+      "https://openactive.io/activity-list#0082b27f-8be5-4ade-ae1f-5f0b2be9e164",
+      "https://openactive.io/activity-list#95092977-5a20-4d6e-b312-8fddabe71544",
+      "https://openactive.io/activity-list#8e2dcbed-9ec9-46b0-a1c8-af2a4d0d2e01"
+    ],
+    "beta:flattenConcept": [
+      "https://openactive.io/activity-list#d101b63b-572f-49d2-a027-d3a5748e6315"
+    ]
+  }
+};
+
+
+
 
 var testRestriction = {
   "type": "beta:ConceptSchemeRestriction",
@@ -63,7 +92,7 @@ var testRestriction = {
 };
 
 
-var generatedScheme = generateSchemeFromRestriction(testRestrictionEMD);
+var generatedScheme = generateSchemeFromRestriction(testRestrictionTGC);
 
 writeFile("output/activity-list.jsonld", JSON.stringify(generatedScheme.scheme, null, 2));
 writeFile("output/index.md", generatedScheme.markdown);
