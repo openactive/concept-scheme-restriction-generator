@@ -24,7 +24,7 @@
     "beta:excludeConcept": [ "https://openactive.io/activity-list#b976886d-d5f5-49c7-9502-008ab3d3d7a6" ],
     "beta:hideConcept": [ "https://openactive.io/activity-list#d3b5104a-2e31-4cca-a278-ef8e0987a764" ],
     "publisher": {
-      "@type": "Organization",
+      "type": "Organization",
       "name": "EMD UK",
       "legalName": "EMD UK",
       "url": "https://www.emduk.org/"
