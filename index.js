@@ -1,110 +1,27 @@
-
-var request = require('sync-request');
+var httpm = require('@actions/http-client');
 var skos = require('@openactive/skos');
 var fs = require('fs');
 
-var testRestrictionMLP = {
-  "@context":  [ "https://openactive.io/", "https://openactive.io/ns-beta" ],
-  "type": "ConceptScheme",
-  "id": "http://data.mylocalpitch.com/activity-list/activity-list.jsonld",
-  "title": "My Local Pitch Restricted Activity List",
-  "description": "List of activities available for MLP events",
-  "beta:conceptRestriction": {
-    "type": "beta:ConceptSchemeRestriction",
-    "beta:parentScheme": "https://openactive.io/activity-list",
-    "beta:rootConcept": [
-      "https://openactive.io/activity-list#0a5f732d-e806-4e51-ad40-0a7de0239c8c"
-    ],
-    "beta:excludeConcept": [
-      "https://openactive.io/activity-list#6016ce87-d9ed-4bd6-8cc9-5598c2f59f79",
-      "https://openactive.io/activity-list#22fe3033-b0e4-4717-8455-599180b5bcba",
-      "https://openactive.io/activity-list#1de4c90e-6a27-4bc4-a2be-437a443c7ded",
-      "https://openactive.io/activity-list#b8019b67-2ade-406f-a012-91a5c3869652",
-      "https://openactive.io/activity-list#f6301564-93d5-41ff-91a1-7ac2dd833951",
-      "https://openactive.io/activity-list#666cf454-4733-4697-89cb-8e28f6e8595b"
-    ],
-    "beta:flattenConcept": ["https://openactive.io/activity-list#22fe3033-b0e4-4717-8455-599180b5bcba"]
+const core = require('@actions/core');
+
+var schemeFile = core.getInput('schemeFile', { required: true });
+var restrictionJson = JSON.parse(fs.readFileSync(schemeFile, { encoding:'utf8' }));
+
+(async () => {
+  var generatedScheme = await generateSchemeFromRestriction(restrictionJson);
+
+  var dir = './output';
+  if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir);
   }
-};
 
-var testRestrictionEMD = {
-  "@context": [ "https://openactive.io/", "https://openactive.io/ns-beta" ],
-  "type": "ConceptScheme",
-  "id": "https://data.emduk.org/activity-list/activity-list.jsonld",
-  "title": "EMD UK Restricted Activity List",
-  "description": "List of activities within scope of EMD UK",
-  "beta:conceptRestriction": {
-    "type": "beta:ConceptSchemeRestriction",
-    "beta:parentScheme": "https://openactive.io/activity-list",
-    "beta:rootConcept": [
-      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c",
-      "https://openactive.io/activity-list#6ca15167-51da-4d91-a1ae-8a45dc47b0ea",
-      "https://openactive.io/activity-list#0141d752-088f-4bab-99fa-9a3d61ee5cf9",
-      "https://openactive.io/activity-list#c16df6ed-a4a0-4275-a8c3-1c8cff56856f",
-      "https://openactive.io/activity-list#1b88144e-91cf-4642-8e6a-8e4524f7c56f",
-      "https://openactive.io/activity-list#11b06df1-ccf5-4176-b1be-b4c39c5377c7",
-      "https://openactive.io/activity-list#6901af47-aed9-45e4-8d9f-fc71199a64df",
-      "https://openactive.io/activity-list#c72e1713-25c1-4886-926a-4cd549bb4916"
-    ],
-    "beta:flattenConcept": [
-      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c"
-    ]
-  }
-};
-
-var testRestrictionTGC = {
-  "@context": [ "https://openactive.io/", "https://openactive.io/ns-beta" ],
-  "type": "ConceptScheme",
-  "id": "https://opendata.thisgirlcan.co.uk/activity-list/activity-list.jsonld",
-  "title": "This Girl Can Restricted Activity List",
-  "description": "List of activities within scope of This Girl Can",
-  "beta:conceptRestriction": {
-    "type": "beta:ConceptSchemeRestriction",
-    "beta:parentScheme": "https://openactive.io/activity-list",
-    "beta:rootConcept": [
-      "https://openactive.io/activity-list#4a19873e-118e-43f4-b86e-05acba8fb1de",
-      "https://openactive.io/activity-list#6ca15167-51da-4d91-a1ae-8a45dc47b0ea",
-      "https://openactive.io/activity-list#de71c5ea-e93e-49aa-808a-f4a2e68cdddd",
-      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c",
-      "https://openactive.io/activity-list#d101b63b-572f-49d2-a027-d3a5748e6315",
-      "https://openactive.io/activity-list#72ddb2dc-7d75-424e-880a-d90eabe91381",
-      "https://openactive.io/activity-list#2750229d-b725-4171-9276-376be913957c",
-      "https://openactive.io/activity-list#0082b27f-8be5-4ade-ae1f-5f0b2be9e164",
-      "https://openactive.io/activity-list#95092977-5a20-4d6e-b312-8fddabe71544",
-      "https://openactive.io/activity-list#8e2dcbed-9ec9-46b0-a1c8-af2a4d0d2e01"
-    ],
-    "beta:flattenConcept": [
-      "https://openactive.io/activity-list#d101b63b-572f-49d2-a027-d3a5748e6315"
-    ]
-  }
-};
-
-
-
-
-var testRestriction = {
-  "type": "beta:ConceptSchemeRestriction",
-  "beta:parentScheme": "https://openactive.io/activity-list",
-  "beta:rootConcept": [ "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c" ],
-  "beta:flattenConcept": [ "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c" ],
-  "beta:excludeConcept": [ "https://openactive.io/activity-list#b976886d-d5f5-49c7-9502-008ab3d3d7a6" ],
-  "beta:hideConcept": [ "https://openactive.io/activity-list#d3b5104a-2e31-4cca-a278-ef8e0987a764" ]
-};
-
-
-var generatedScheme = generateSchemeFromRestriction(testRestrictionTGC);
-
-writeFile("output/activity-list.jsonld", JSON.stringify(generatedScheme.scheme, null, 2));
-writeFile("output/index.md", generatedScheme.markdown);
-
+  writeFile("output/activity-list.jsonld", JSON.stringify(generatedScheme.scheme, null, 2));
+  writeFile("output/index.md", generatedScheme.markdown);
+})();
 
 function writeFile(file, string) {
-  fs.writeFile(file, string, function(err) {
-    if(err) {
-        return console.log(err);
-    }
-    console.log("FILE SAVED: " + file);
-  }); 
+  fs.writeFileSync(file, string);
+  console.log("FILE SAVED: " + file);
 }
 
 function configToMarkdown(properties, config, conceptIndex) {
@@ -146,11 +63,11 @@ function markNarrower(concept, conceptIndex) {
   });
 }
 
-function generateSchemeFromRestriction(templateScheme) {
+async function generateSchemeFromRestriction(templateScheme) {
   var restriction = templateScheme["beta:conceptRestriction"];
   var generatedSchemeId = templateScheme["id"];
 
-  var scheme = getScheme(restriction["beta:parentScheme"]);
+  var scheme = await getScheme(restriction["beta:parentScheme"]);
 
   // Create an index of all concepts by ID
   var conceptIndex = scheme.concept.reduce(function(map, obj) {
@@ -295,7 +212,10 @@ function generateSchemeFromRestriction(templateScheme) {
 `# ${templateScheme.title}
 ${templateScheme.description}
 
-This page contains a human readable form of the restricted [OpenActive](https://www.openactive.io) activity list scheme which can be accessed and should be referenced via the URL [\`${templateScheme.id}\`](${templateScheme.id}).
+This page contains a human readable form of the restricted [OpenActive Activity List](https://openactive.io/activity-list) scheme. It can be accessed and should be referenced via the URL [\`${templateScheme.id}\`](${templateScheme.id}).
+
+## License
+This data is derived from the [OpenActive Activity List](${scheme.id}), is owned by [${restriction.publisher.legalName}](${restriction.publisher.url}), and is licensed under the [Creative Commons Attribution Licence (CC-BY V4.0)](https://creativecommons.org/licenses/by/4.0/) for anyone to access, use and share; using attribution "${restriction.publisher.name}".
 
 ## ConceptSchemeRestriction
 ${generatedMarkdownConfig}
@@ -310,15 +230,21 @@ ${generatedMarkdownConcepts}
   };
 }
 
-function getScheme(schemeUrl) {
-  console.log("Downloading: " + schemeUrl);
-  var response = request('GET', schemeUrl, { headers: { accept: 'application/ld+json' } });
-  if (response && response.statusCode == 200) {
-    var body = JSON.parse(response.getBody('utf8'));
-    return body["concept"] && body["id"] && body["type"] === "ConceptScheme" ? body : undefined;
-  } else {
-    throw "Invalid scheme specified: " + schemeUrl;
-  }
+async function getScheme(schemeUrl) {
+  console.log("Downloading scheme: " + schemeUrl);
+  var jsonLd = await getJsonLd(schemeUrl);
+  return jsonLd["concept"] && jsonLd["id"] && jsonLd["type"] === "ConceptScheme" ? jsonLd : undefined;
+}
+
+async function getJsonLd(url) {
+  const additionalHeaders = {[httpm.Headers.Accept]: 'application/ld+json'}
+  const client = new httpm.HttpClient();
+  const jsonObj = await client.getJson(
+    url,
+    additionalHeaders
+  );
+  if (jsonObj.statusCode !== 200) throw new Error(`URL '${url}' could not be resolved`);
+  return jsonObj.result;
 }
 
 module.exports = {

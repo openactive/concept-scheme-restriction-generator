@@ -22,7 +22,8 @@
   },
   "homepage": "https://github.com/openactive/concept-scheme-restriction-generator#readme",
   "dependencies": {
-    "@openactive/skos": "^1.0.17",
-    "sync-request": "^6.0.0"
+    "@actions/core": "^1.4.0",
+    "@actions/http-client": "^1.0.11",
+    "@openactive/skos": "^1.4.3"
   }
 }

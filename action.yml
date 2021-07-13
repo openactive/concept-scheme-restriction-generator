@@ -1,0 +1,12 @@
+name: 'OpenActive Extension Documentation Generator'
+description: 'Generator to render complete ConceptSchemes from ConceptSchemeRestriction'
+author: 'OpenActive Community'
+inputs:
+  schemeFile:
+    description: 'JSON-LD file containing a ConceptSchemeRestriction within a ConceptScheme'
+branding:
+  icon: 'align-left'
+  color: 'blue'
+runs:
+  using: 'node14'
+  main: 'index.js'

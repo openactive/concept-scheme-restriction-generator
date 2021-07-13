@@ -1,0 +1,32 @@
+{
+  "@context": [ "https://openactive.io/", "https://openactive.io/ns-beta" ],
+  "type": "ConceptScheme",
+  "id": "https://data.emduk.org/activity-list/activity-list.jsonld",
+  "title": "EMD UK Restricted Activity List",
+  "description": "List of activities within scope of EMD UK",
+  "beta:conceptRestriction": {
+    "type": "beta:ConceptSchemeRestriction",
+    "beta:parentScheme": "https://openactive.io/activity-list",
+    "beta:rootConcept": [
+      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c",
+      "https://openactive.io/activity-list#6ca15167-51da-4d91-a1ae-8a45dc47b0ea",
+      "https://openactive.io/activity-list#0141d752-088f-4bab-99fa-9a3d61ee5cf9",
+      "https://openactive.io/activity-list#c16df6ed-a4a0-4275-a8c3-1c8cff56856f",
+      "https://openactive.io/activity-list#1b88144e-91cf-4642-8e6a-8e4524f7c56f",
+      "https://openactive.io/activity-list#11b06df1-ccf5-4176-b1be-b4c39c5377c7",
+      "https://openactive.io/activity-list#6901af47-aed9-45e4-8d9f-fc71199a64df",
+      "https://openactive.io/activity-list#c72e1713-25c1-4886-926a-4cd549bb4916"
+    ],
+    "beta:flattenConcept": [
+      "https://openactive.io/activity-list#984068a7-5b7b-4989-bb33-f96953d8960c"
+    ],
+    "beta:excludeConcept": [ "https://openactive.io/activity-list#b976886d-d5f5-49c7-9502-008ab3d3d7a6" ],
+    "beta:hideConcept": [ "https://openactive.io/activity-list#d3b5104a-2e31-4cca-a278-ef8e0987a764" ],
+    "publisher": {
+      "@type": "Organization",
+      "name": "EMD UK",
+      "legalName": "EMD UK",
+      "url": "https://www.emduk.org/"
+    }
+  }
+}
