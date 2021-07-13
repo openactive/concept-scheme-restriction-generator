@@ -4,7 +4,7 @@ var fs = require('fs');
 
 const core = require('@actions/core');
 
-var schemeFile = core.getInput('schemeFile', { required: true });
+var schemeFile = core.getInput('schemeFile', { required: true }); // 'restriction.example.jsonld';
 var restrictionJson = JSON.parse(fs.readFileSync(schemeFile, { encoding:'utf8' }));
 
 (async () => {
@@ -68,6 +68,11 @@ async function generateSchemeFromRestriction(templateScheme) {
   var generatedSchemeId = templateScheme["id"];
 
   var scheme = await getScheme(restriction["beta:parentScheme"]);
+
+  // Remove narrower references, and rely only on broader. This simplifies implementation.
+  for (const concept of scheme.concept) {
+    delete concept.narrower;
+  }
 
   // Create an index of all concepts by ID
   var conceptIndex = scheme.concept.reduce(function(map, obj) {

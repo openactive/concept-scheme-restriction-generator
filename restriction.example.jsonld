@@ -4,6 +4,7 @@
   "id": "https://data.emduk.org/activity-list/activity-list.jsonld",
   "title": "EMD UK Restricted Activity List",
   "description": "List of activities within scope of EMD UK",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
   "beta:conceptRestriction": {
     "type": "beta:ConceptSchemeRestriction",
     "beta:parentScheme": "https://openactive.io/activity-list",
